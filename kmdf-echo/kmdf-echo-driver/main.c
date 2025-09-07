@@ -1,5 +1,5 @@
 /*
-*	kmdf-echo-driver
+*	kmdf-echo-driver - main.c
 *	간단한 Echo를 구현하는 KMDF 예제입니다.
 * 
 *	Copyright (C) 2025-2026 Coppermine-SP
@@ -48,6 +48,7 @@ NTSTATUS OnDeviceAdd(
 	PAGED_CODE();
 
 	WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&fdoAttributes, FDO_DATA);
+	result = WdfDeviceInitAssignName(DeviceInit, &driverNtName);
 	result = WdfDeviceCreate(&DeviceInit, &fdoAttributes, &hDevice);
 	if (!NT_SUCCESS(result)) return result;
 
@@ -58,12 +59,13 @@ NTSTATUS OnDeviceAdd(
 
 	result = WdfIoQueueCreate(hDevice, &queueConfig, WDF_NO_OBJECT_ATTRIBUTES, &queue);
 	result = WdfDeviceCreateDeviceInterface(hDevice, (LPGUID)&GUID_DRIVER, NULL);
+	result = WdfDeviceCreateSymbolicLink(hDevice, &driverDosName);
 
 	if (NT_SUCCESS(result)) {
-		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "kmdf-echo-drvier.OnDeviceAdd(): Success");
+		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "kmdf-echo-drvier.OnDeviceAdd(): Success\n");
 	}
 	else {
-		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "kmdf-echo-driver.OnDeviceAdd(): Error(NTSTATUS: %.8x)", result);
+		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "kmdf-echo-driver.OnDeviceAdd(): Error(NTSTATUS: %.8x)\n", result);
 	}
 
 	return result;
@@ -82,12 +84,12 @@ VOID OnIoDeviceControl(
 	PAGED_CODE();
 
 	if (IoControlCode != IOCTL_ECHO_CONTROL) {
-		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "kmdf-echo-driver.OnIoDeviceControl(): Unknown IOCTL Code");
+		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "kmdf-echo-driver.OnIoDeviceControl(): Unknown IOCTL Code\n");
 		result = STATUS_INVALID_DEVICE_REQUEST;
 		goto exit;
 	}
 
-	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "kmdf-echo-driver.OnIoDeviceControl(): OutputBufferLength=%lld, InputBufferLength=%lld", (ULONGLONG)OutputBufferLength, (ULONGLONG)InputBufferLength);
+	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "kmdf-echo-driver.OnIoDeviceControl(): OutputBufferLength=%lld, InputBufferLength=%lld\n", (ULONGLONG)OutputBufferLength, (ULONGLONG)InputBufferLength);
 
 	exit:
 	WdfRequestCompleteWithInformation(Request, result, (ULONG_PTR)0);
