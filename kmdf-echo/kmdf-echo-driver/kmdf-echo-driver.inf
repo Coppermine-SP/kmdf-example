@@ -1,0 +1,73 @@
+;
+; kmdf-echo-driver.inf
+;
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = CLOUDINT
+ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be11318} ; TODO: specify appropriate ClassGuid
+Provider    = %ManufacturerName%
+CatalogFile = kmdf-echo-driver.cat
+DriverVer   = ; TODO: set DriverVer in stampinf property pages
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 13
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+kmdf-echo-driver.sys = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[ClassInstall32]
+Addreg=WDFSIMPLEClassReg
+
+[WDFSIMPLEClassReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-5
+HKR,,DeviceCharacteristics,0x10001,0x100                 ;Use same security checks on relative opens
+HKR,,Security,,"D:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;LS)" ;Allow generic all access to system, built-in Admin, and Local System.
+                                                         ;This one overrides the security set by the driver
+
+[Manufacturer]
+%ManufacturerName% = Standard,NT$ARCH$.10.0...16299 ; %13% support introduced in build 16299
+
+[Standard.NT$ARCH$.10.0...16299]
+%kmdf-echo-driver.DeviceDesc% = kmdf-echo-driver_Device, Root\kmdf-echo-driver ; TODO: edit hw-id
+
+[kmdf-echo-driver_Device.NT]
+CopyFiles = File_Copy
+
+[File_Copy]
+kmdf-echo-driver.sys
+
+;-------------- Service installation
+[kmdf-echo-driver_Device.NT.Services]
+AddService = kmdf-echo-driver,%SPSVCINST_ASSOCSERVICE%, kmdf-echo-driver_Service_Inst
+
+; -------------- kmdf-echo-driver driver install sections
+[kmdf-echo-driver_Service_Inst]
+DisplayName    = %kmdf-echo-driver.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\kmdf-echo-driver.sys
+
+[kmdf-echo-driver_Device.NT.Wdf]
+KmdfService = kmdf-echo-driver, kmdf-echo-driver_wdfsect
+
+[kmdf-echo-driver_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE = 0x00000002
+ManufacturerName = "CloudInteractive Inc."
+ClassName = "CloudInteractive"
+DiskName = "kmdf-echo-driver Installation Disk"
+kmdf-echo-driver.DeviceDesc = "CloudInteractive Echo Device Driver"
+kmdf-echo-driver.SVCDESC = "kmdf-echo-driver Service"
