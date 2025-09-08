@@ -43,6 +43,10 @@ int main()
 	while (TRUE) {
 		printf("> ");
 		ReadConsoleW(hIn, buf, _countof(buf), &cnt, NULL);
+		if (cnt == 0) continue;
+		size_t len = cnt;
+		while (len && (buf[len - 1] == L'\n' || buf[len - 1] == L'\r' || buf[len - 1] == L'\0')) --len;
+		buf[len] = L'\0';
 
 		if (lstrcmp(buf, QUIT_COMMAND) == 0) {
 			break;
