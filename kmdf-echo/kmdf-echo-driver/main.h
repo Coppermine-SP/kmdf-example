@@ -11,6 +11,7 @@ DEFINE_GUID(GUID_DRIVER, 0x56f5dec1, 0xab0b, 0x11d1, 0xb9, 0x84, 0x0, 0x60, 0xaf
 DRIVER_INITIALIZE DriverEntry;
 EVT_WDF_DRIVER_DEVICE_ADD OnDeviceAdd;
 EVT_WDF_IO_QUEUE_IO_DEVICE_CONTROL OnIoDeviceControl;
+VOID WriteOnLogFile(PUNICODE_STRING String);
 
 typedef struct _FDO_DATA {
 	char Reserved;

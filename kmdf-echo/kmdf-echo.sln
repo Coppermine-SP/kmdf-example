@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22 d17.14
+VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kmdf-echo-driver", "kmdf-echo-driver\kmdf-echo-driver.vcxproj", "{DDBFEE11-545B-2244-2106-FD89042A5086}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kmdf-echo-app", "kmdf-echo-app\kmdf-echo-app.vcxproj", "{37381039-802C-40E1-BED2-BD2D15D4117E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +27,14 @@ Global
 		{DDBFEE11-545B-2244-2106-FD89042A5086}.Release|x64.ActiveCfg = Release|x64
 		{DDBFEE11-545B-2244-2106-FD89042A5086}.Release|x64.Build.0 = Release|x64
 		{DDBFEE11-545B-2244-2106-FD89042A5086}.Release|x64.Deploy.0 = Release|x64
+		{37381039-802C-40E1-BED2-BD2D15D4117E}.Debug|ARM64.ActiveCfg = Debug|x64
+		{37381039-802C-40E1-BED2-BD2D15D4117E}.Debug|ARM64.Build.0 = Debug|x64
+		{37381039-802C-40E1-BED2-BD2D15D4117E}.Debug|x64.ActiveCfg = Debug|x64
+		{37381039-802C-40E1-BED2-BD2D15D4117E}.Debug|x64.Build.0 = Debug|x64
+		{37381039-802C-40E1-BED2-BD2D15D4117E}.Release|ARM64.ActiveCfg = Release|x64
+		{37381039-802C-40E1-BED2-BD2D15D4117E}.Release|ARM64.Build.0 = Release|x64
+		{37381039-802C-40E1-BED2-BD2D15D4117E}.Release|x64.ActiveCfg = Release|x64
+		{37381039-802C-40E1-BED2-BD2D15D4117E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

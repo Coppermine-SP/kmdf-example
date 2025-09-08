@@ -28,7 +28,7 @@ NTSTATUS DriverEntry(
 		KeBugCheck(IRQL_NOT_LESS_OR_EQUAL);
 	}
 
-	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "kmdf-echo-drvier.DriverEntry(): Success");
+	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "kmdf-echo-drvier.DriverEntry(): Success\n");
 	return result;
 }
 
@@ -65,7 +65,7 @@ NTSTATUS OnDeviceAdd(
 		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "kmdf-echo-drvier.OnDeviceAdd(): Success\n");
 	}
 	else {
-		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "kmdf-echo-driver.OnDeviceAdd(): Error(NTSTATUS: %.8x)\n", result);
+		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "kmdf-echo-driver.OnDeviceAdd(): Error(NTSTATUS=%.8x)\n", result);
 	}
 
 	return result;
@@ -80,6 +80,11 @@ VOID OnIoDeviceControl(
 )
 {
 	NTSTATUS result = STATUS_SUCCESS; 
+	PVOID inBuf;
+	PVOID outBuf;
+	size_t inLen;
+	size_t outLen;
+	UNICODE_STRING string;
 	UNREFERENCED_PARAMETER(Queue);
 	PAGED_CODE();
 
@@ -90,7 +95,55 @@ VOID OnIoDeviceControl(
 	}
 
 	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "kmdf-echo-driver.OnIoDeviceControl(): OutputBufferLength=%lld, InputBufferLength=%lld\n", (ULONGLONG)OutputBufferLength, (ULONGLONG)InputBufferLength);
+	if (InputBufferLength == 0) goto exit;
+
+	result = WdfRequestRetrieveInputBuffer(Request, InputBufferLength, &inBuf, &inLen);
+	result = WdfRequestRetrieveOutputBuffer(Request, sizeof(int), &outBuf, &outLen);
+	if (!NT_SUCCESS(result)) {
+		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "kmdf-echo-driver.OnIoDeviceControl(): WdfRequestRetrieveBuffer() Failed (NTSTATUS=%.8x)\n", result);
+		goto exit;
+	}
+
+	RtlInitUnicodeString(&string, inBuf);
+	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "kmdf-echo-driver.OnIoDeviceControl(): Received=%wZ\n", &string);
+	WriteOnLogFile(&string);
+	
+	outLen = sizeof(int);
+	*(int*)outBuf = string.Length;
+	exit:
+	WdfRequestCompleteWithInformation(Request, result, sizeof(int));
+}
+
+VOID WriteOnLogFile(PUNICODE_STRING String) {
+	NTSTATUS result = STATUS_SUCCESS;
+	HANDLE hFile = NULL;
+	OBJECT_ATTRIBUTES attr;
+	IO_STATUS_BLOCK status;
+	UNICODE_STRING fileName;
+
+	RtlInitUnicodeString(&fileName, L"\\??\\C:\\kmdf-echo-driver.logs");
+	InitializeObjectAttributes(&attr, &fileName, OBJ_CASE_INSENSITIVE, NULL, NULL);
+
+	result = ZwCreateFile(&hFile, FILE_APPEND_DATA, &attr, &status, NULL, FILE_ATTRIBUTE_NORMAL, 0, FILE_OPEN_IF, FILE_SYNCHRONOUS_IO_NONALERT, NULL, 0);
+
+	if (status.Information == FILE_CREATED) {
+		static const WCHAR bom = 0xFEFF; // UTF-16LE BOM
+		result = ZwWriteFile(hFile, NULL, NULL, NULL, &status,
+			(PVOID)&bom, sizeof(bom), NULL, NULL);
+		if (!NT_SUCCESS(result)) goto exit;
+
+	}
+
+	result = ZwWriteFile(hFile, NULL, NULL, NULL, &status, (PVOID)String->Buffer, String->Length, NULL, NULL);
+	
+	static const WCHAR crlf[] = L"\r\n";
+	result = ZwWriteFile(hFile, NULL, NULL, NULL, &status,
+		(PVOID)crlf, sizeof(crlf) - sizeof(WCHAR), NULL, NULL);
 
 	exit:
-	WdfRequestCompleteWithInformation(Request, result, (ULONG_PTR)0);
+	if (!NT_SUCCESS(result)) 
+		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "kmdf-echo-driver.WriteOnLogFile(): NTSTATUS=%.8x\n", result);
+	else
+		ZwClose(hFile);
+	
 }
