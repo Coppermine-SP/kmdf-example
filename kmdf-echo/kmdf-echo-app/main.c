@@ -5,10 +5,13 @@
 *	Copyright (C) 2025-2026 Coppermine-SP
 */
 
+#define UNICODE
+#define _UNICODE
 #include "echo-common.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <Windows.h>
+#include <locale.h>
 #include <winioctl.h>
 
 #define QUIT_COMMAND L"quit"
@@ -16,6 +19,9 @@
 
 int main()
 {
+	SetConsoleCP(CP_UTF8);
+	SetConsoleOutputCP(CP_UTF8);
+	setlocale(LC_ALL, ".UTF-8");
 	HANDLE hDevice;
 
 	hDevice = CreateFile(L"\\\\.\\kmdf-echo-driver", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
