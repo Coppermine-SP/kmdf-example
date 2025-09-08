@@ -5,8 +5,6 @@
 *	Copyright (C) 2025-2026 Coppermine-SP
 */
 
-#define UNICODE
-#define _UNICODE
 #include "echo-common.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,8 +21,10 @@ int main()
 	SetConsoleOutputCP(CP_UTF8);
 	setlocale(LC_ALL, ".UTF-8");
 	HANDLE hDevice;
+	HANDLE hIn;
 
 	hDevice = CreateFile(L"\\\\.\\kmdf-echo-driver", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	hIn = GetStdHandle(STD_INPUT_HANDLE);
 
 	if (hDevice == (HANDLE)-1) {
 		printf("Win32 CreateFile failed.");
@@ -34,6 +34,7 @@ int main()
 	WCHAR buf[SEND_BUF_SIZE] = L"";
 	int recv;
 	DWORD ret;
+	DWORD cnt;
 
 	printf("Connected. type ");
 	printf("%ls", QUIT_COMMAND);
@@ -41,7 +42,7 @@ int main()
 
 	while (TRUE) {
 		printf("> ");
-		wscanf_s(L"%ls", buf, SEND_BUF_SIZE);
+		ReadConsoleW(hIn, buf, _countof(buf), &cnt, NULL);
 
 		if (lstrcmp(buf, QUIT_COMMAND) == 0) {
 			break;
