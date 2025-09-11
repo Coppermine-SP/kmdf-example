@@ -12,9 +12,54 @@ SCSI_ADAPTER_CONTROL_STATUS OnHwAdapterControl(
 	IN SCSI_ADAPTER_CONTROL_TYPE ControlType,
 	IN PVOID Parameters
 ) {
-	//TODO: Implement adapter control operations here.
-	UNREFERENCED_PARAMETER(DeviceExtension);
-	UNREFERENCED_PARAMETER(ControlType);
 	UNREFERENCED_PARAMETER(Parameters);
-	return FALSE;
+	PHW_DEVICE_EXTENSION pDeviceExtension = NULL;
+	PSCSI_SUPPORTED_CONTROL_TYPE_LIST pControlTypeList = NULL;
+
+	if(DeviceExtension == NULL) {
+	
+		return ScsiAdapterControlUnsuccessful;
+	}
+	pDeviceExtension = (PHW_DEVICE_EXTENSION)DeviceExtension;
+
+	switch (ControlType) {
+		case ScsiQuerySupportedControlTypes:
+		{
+			BOOLEAN supportedTypes[ScsiAdapterControlMax] = {
+				TRUE,
+				TRUE,
+				TRUE,
+				FALSE,
+				FALSE
+			};
+
+			ULONG max = ScsiAdapterControlMax;
+
+			pControlTypeList = (PSCSI_SUPPORTED_CONTROL_TYPE_LIST)Parameters;
+			if(pControlTypeList == NULL) 
+				return ScsiAdapterControlUnsuccessful;
+
+			if (pControlTypeList->MaxControlType < max)
+				max = pControlTypeList->MaxControlType;
+
+			for(ULONG i = 0; i < max; i++)
+				pControlTypeList->SupportedTypeList[i] = supportedTypes[i];
+
+			break;
+		}
+		case ScsiStopAdapter:
+		{
+			break;
+		}
+		case ScsiRestartAdapter:
+		{
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+
+	return ScsiAdapterControlSuccess;
 }

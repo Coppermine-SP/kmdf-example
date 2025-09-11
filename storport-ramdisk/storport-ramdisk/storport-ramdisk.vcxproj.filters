@@ -51,6 +51,12 @@
     <ClCompile Include="OnHwPassiveInitialize.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OnInquiryVpdRequest.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OnHwUnitControl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="storport-ramdisk.h">

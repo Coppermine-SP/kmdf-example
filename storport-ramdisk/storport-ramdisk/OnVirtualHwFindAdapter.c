@@ -46,7 +46,8 @@ ULONG OnVirtualHwFindAdapter(
 	ConfigInfo->MaximumNumberOfTargets = 1;
 	ConfigInfo->MaximumNumberOfLogicalUnits = 1;
 	ConfigInfo->WmiDataProvider = FALSE;
-
+	ConfigInfo->SrbType = SRB_TYPE_SCSI_REQUEST_BLOCK;
+	ConfigInfo->AddressType = STOR_ADDRESS_TYPE_BTL8;
 	ConfigInfo->ResetTargetSupported = TRUE;
 	ConfigInfo->SynchronizationModel = StorSynchronizeFullDuplex;
 	ConfigInfo->MapBuffers = STOR_MAP_ALL_BUFFERS_INCLUDING_READ_WRITE;

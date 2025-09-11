@@ -120,6 +120,8 @@
     <ClCompile Include="OnHwPassiveInitialize.c" />
     <ClCompile Include="OnHwResetBus.c" />
     <ClCompile Include="OnHwStartIo.c" />
+    <ClCompile Include="OnHwUnitControl.c" />
+    <ClCompile Include="OnInquiryVpdRequest.c" />
     <ClCompile Include="OnVirtualHwFindAdapter.c" />
   </ItemGroup>
   <ItemGroup>
