@@ -70,4 +70,67 @@ WinDbg로 드라이버 디버깅 메세지를 읽으려면 대상 컴퓨터에 �
 WinDbg에서 대상 컴퓨터를 Break 하고 다음 명령을 입력합니다:
 ```
 ed nt!Kd_IHVDRIVER_Mask 0xF
-``` 
+```
+
+## Samples
+### kmdf-echo
+DeviceIoControl()을 통해 문자열을 전달받는 가상 KMDF 디바이스 드라이버
+
+- KMDF 드라이버 기본 골격 (DriverEntry(), DeviceAdd(), 기본 I/O 큐)
+- DeviceIoControl()을 통한 사용자 모드 앱과의 통신
+- 커널모드 함수를 이용한 디스크 I/O
+
+솔루션의 kmdf-echo-driver 드라이버를 설치하고 장치를 추가합니다.
+
+<p align="center">
+  <img width="500" alt="Screenshot 2025-09-13 002038" src="https://github.com/user-attachments/assets/00536693-edb0-40cb-a44f-2c512be86824" />
+</p>
+
+솔루션의 kmdf-echo-app을 빌드하여 실행하고 드라이버와 연결합니다. (Run as Administrator)
+
+<p align="center">
+  <img width="500" alt="Screenshot 2025-09-13 002310" src="https://github.com/user-attachments/assets/3b894a99-1ef9-4f19-bd8b-95d1cf86742f" />
+</p>
+
+C:\kmdf-echo-driver.logs 파일 또는 WinDbg 명령 창을 확인합니다. 
+
+<p align="center">
+  <img width="500" height="700" alt="image" src="https://github.com/user-attachments/assets/9c59a390-e2a9-48b4-aa2d-ec414532ef57" />
+</p>
+
+- - -
+
+### storport-ramdisk
+
+Storport Virtual Miniport Driver (VMiniport)로 구현된 램 디스크 드라이버
+
+- Storport 가상 미니포트 드라이버 구조 구현
+- SCSI 명령 처리 (READ, WRITE, REPORT LUNS, INQUERY, READ CAPACITY)
+- HW_PASSIVE_INITIALIZE_ROUTINE에서 논페이지드 풀 메모리를 할당받아 해당 영역을 디스크로써 사용합니다.
+- SCSI VPD 페이지 (0x80, 0xB1) 지원
+
+>[!NOTE]
+>**로그를 출력하려면 DBG 매크로 상수를 1로 선언합니다.**
+>
+>이것은 I/O 성능을 크게 저하시키기 때문에 권장하지 않습니다.
+
+솔루션의 storport-ramdisk 드라이버를 설치하고 장치를 추가합니다.
+
+<p align="center">
+  <img width="500" alt="image" src="https://github.com/user-attachments/assets/c617b528-7535-4bde-99e4-aa0f7521885e" />
+</p>
+
+Disk Manager에서 가상 디스크 장치를 초기화하고 파티션을 구성합니다.
+
+<p align="center">
+  <img width="500" alt="image" src="https://github.com/user-attachments/assets/d27700a1-9548-4ccc-abd3-8e0c892bc19d" />
+</p>
+
+<p align="center">
+  <img width="500" alt="Screenshot 2025-09-12 214728" src="https://github.com/user-attachments/assets/81b7bcaf-415c-42e5-850d-e01b95fdd486" />
+</p>
+
+디버그 매크로 상수를 설정하고 WinDbg 명령 창을 참조합니다.
+<p align="center">
+  <img width="500" alt="Screenshot 2025-09-12 204413" src="https://github.com/user-attachments/assets/fe4d2ce9-e6fc-4f35-8a46-945ef3232de4" />
+</p>
