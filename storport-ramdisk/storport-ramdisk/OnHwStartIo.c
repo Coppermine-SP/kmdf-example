@@ -117,12 +117,123 @@ BOOLEAN OnHwStartIo(
 				Srb->ScsiStatus = SCSISTAT_GOOD;
 				break;
 			}
+			else if (pCdb->CDB6GENERIC.OperationCode == SCSIOP_MODE_SENSE) {
+				if((pBuf == NULL) || (Srb->DataTransferLength <= 0))
+					break;
+
+				RtlZeroMemory(pBuf, Srb->DataTransferLength);
+
+				if (pCdb->MODE_SENSE.Pc != 1) {
+					PMODE_PARAMETER_HEADER pModeHeader = NULL;
+					ULONG diskSize = 0;
+
+					diskSize = pDeviceExtension->TotalBlocks;
+					pModeHeader = (PMODE_PARAMETER_HEADER)pBuf;
+					pModeHeader->ModeDataLength = sizeof(MODE_PARAMETER_HEADER);
+					pModeHeader->MediumType = 0;
+					pModeHeader->DeviceSpecificParameter = 0;
+
+					if (!pCdb->MODE_SENSE.Dbd && (pCdb->MODE_SENSE.AllocationLength >= (pModeHeader->ModeDataLength + sizeof(MODE_PARAMETER_BLOCK)))) {
+						PMODE_PARAMETER_BLOCK block = NULL;
+						ULONG logicalBlockAddress = 0;
+						ULONG bytesPerBlock = 0;
+
+						block = (PMODE_PARAMETER_BLOCK)((PUCHAR)pModeHeader + pModeHeader->ModeDataLength);
+						logicalBlockAddress = diskSize;
+						bytesPerBlock = SIZE_LOGICAL_BLOCK;
+						
+						pModeHeader->BlockDescriptorLength = sizeof(MODE_PARAMETER_BLOCK);
+						pModeHeader->ModeDataLength += sizeof(MODE_PARAMETER_BLOCK);
+						block->DensityCode = 0;
+
+						block->NumberOfBlocks[0] = (UCHAR)((logicalBlockAddress >> 16) & 0xFF);
+						block->NumberOfBlocks[1] = (UCHAR)((logicalBlockAddress >> 8) & 0xFF);
+						block->NumberOfBlocks[2] = (UCHAR)(logicalBlockAddress & 0xFF);
+
+						block->BlockLength[0] = (UCHAR)((bytesPerBlock >> 16) & 0xFF);
+						block->BlockLength[1] = (UCHAR)((bytesPerBlock >> 8) & 0xFF);
+						block->BlockLength[2] = (UCHAR)(bytesPerBlock & 0xFF);
+					}
+					else 
+						pModeHeader->BlockDescriptorLength = 0;
+
+					if ((pCdb->MODE_SENSE.AllocationLength >= (pModeHeader->ModeDataLength + sizeof(MODE_PAGE_FORMAT_DEVICE))) &&
+						((pCdb->MODE_SENSE.PageCode == MODE_SENSE_RETURN_ALL) ||
+							(pCdb->MODE_SENSE.PageCode == MODE_PAGE_FORMAT_DEVICE)))
+					{
+						PMODE_FORMAT_PAGE format = NULL;
+
+						format = (PMODE_FORMAT_PAGE)((PUCHAR)pModeHeader + pModeHeader->ModeDataLength);
+						pModeHeader->ModeDataLength += sizeof(MODE_FORMAT_PAGE);
+
+						format->PageCode = MODE_PAGE_FORMAT_DEVICE;
+						format->PageLength = sizeof(MODE_FORMAT_PAGE);
+						format->TracksPerZone[0] = 0;		   // we have only one zone
+						format->TracksPerZone[1] = 0;
+						format->AlternateSectorsPerZone[0] = 0;
+						format->AlternateSectorsPerZone[1] = 0;
+						format->AlternateTracksPerZone[0] = 0;
+						format->AlternateTracksPerZone[1] = 0;
+						format->AlternateTracksPerLogicalUnit[0] = 0;
+						format->AlternateTracksPerLogicalUnit[1] = 0;
+						format->SectorsPerTrack[0] = (UCHAR)((diskSize >> 8) & 0xFF);
+						format->SectorsPerTrack[1] = (UCHAR)((diskSize >> 0) & 0xFF);
+						format->BytesPerPhysicalSector[0] = (UCHAR)((512 >> 8) & 0xFF);
+						format->BytesPerPhysicalSector[1] = (UCHAR)((512 >> 0) & 0xFF);
+						format->SoftSectorFormating = 1;
+					}
+
+					if ((pCdb->MODE_SENSE.AllocationLength >= (pModeHeader->ModeDataLength + sizeof(MODE_DISCONNECT_PAGE))) &&
+						((pCdb->MODE_SENSE.PageCode == MODE_SENSE_RETURN_ALL) ||
+							(pCdb->MODE_SENSE.PageCode == MODE_PAGE_DISCONNECT)))
+					{
+						PMODE_DISCONNECT_PAGE disconnectPage = NULL;
+
+						disconnectPage = (PMODE_DISCONNECT_PAGE)((PUCHAR)pModeHeader + pModeHeader->ModeDataLength);
+						pModeHeader->ModeDataLength += sizeof(MODE_DISCONNECT_PAGE);
+
+						disconnectPage->PageCode = MODE_PAGE_DISCONNECT;
+						disconnectPage->PageLength = sizeof(MODE_DISCONNECT_PAGE);
+						disconnectPage->BufferFullRatio = 0xFF;
+						disconnectPage->BufferEmptyRatio = 0xFF;
+						disconnectPage->BusInactivityLimit[0] = 0;
+						disconnectPage->BusInactivityLimit[1] = 1;
+						disconnectPage->BusDisconnectTime[0] = 0;
+						disconnectPage->BusDisconnectTime[1] = 1;
+						disconnectPage->BusConnectTime[0] = 0;
+						disconnectPage->BusConnectTime[1] = 1;
+						disconnectPage->MaximumBurstSize[0] = 0;
+						disconnectPage->MaximumBurstSize[1] = 1;
+						disconnectPage->DataTransferDisconnect = 1;
+					}
+					Srb->DataTransferLength = pModeHeader->ModeDataLength;
+					Srb->ScsiStatus = SCSISTAT_GOOD;
+					break;
+				}
+				break;
+			}
 			else if (pCdb->CDB6GENERIC.OperationCode == SCSIOP_TEST_UNIT_READY) {
 				DBGPRINT_INFO("SCSIOP_TEST_UNIT_READY");
 				Srb->SrbStatus = SRB_STATUS_SUCCESS;
 				Srb->ScsiStatus = SCSISTAT_GOOD;
 				Srb->DataTransferLength = 0;
 				break;
+			}
+			else {
+				switch (pCdb->CDB6GENERIC.OperationCode) {
+					case SCSIOP_READ:
+					case SCSIOP_READ6:
+					case SCSIOP_READ12:
+					case SCSIOP_READ16:
+					case SCSIOP_WRITE:
+					case SCSIOP_WRITE6:
+					case SCSIOP_WRITE12:
+					case SCSIOP_WRITE16:
+					{
+						SrbStatus = OnScsiReadWrite(pDeviceExtension, pCdb, Srb, pBuf);
+						break;
+					}
+				}
 			}
 			break;
 		}

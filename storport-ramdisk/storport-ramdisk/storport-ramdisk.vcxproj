@@ -44,6 +44,7 @@
     <ConfigurationType>Driver</ConfigurationType>
     <DriverType>KMDF</DriverType>
     <DriverTargetPlatform>Universal</DriverTargetPlatform>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
@@ -94,6 +95,15 @@
     <DriverSign>
       <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
     </DriverSign>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(DDK_LIB_PATH)storport.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <DriverSign>
@@ -122,6 +132,7 @@
     <ClCompile Include="OnHwStartIo.c" />
     <ClCompile Include="OnHwUnitControl.c" />
     <ClCompile Include="OnInquiryVpdRequest.c" />
+    <ClCompile Include="OnScsiReadWrite.c" />
     <ClCompile Include="OnVirtualHwFindAdapter.c" />
   </ItemGroup>
   <ItemGroup>

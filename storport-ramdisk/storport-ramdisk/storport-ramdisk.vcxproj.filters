@@ -57,6 +57,9 @@
     <ClCompile Include="OnHwUnitControl.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OnScsiReadWrite.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="storport-ramdisk.h">

@@ -21,7 +21,7 @@
 #define DISK_SIZE_BYTES ((ULONGLONG)1024*1024*DISK_SIZE_MB)
 #define DISK_TOTAL_BLOCKS ((ULONG)2*1024*DISK_SIZE_MB)
 
-#define DBG 1
+//#define DBG 1
 #pragma endregion
 
 #pragma region Structs
@@ -50,5 +50,13 @@ UCHAR OnInquiryVpdRequest(
 	IN PHW_DEVICE_EXTENSION DeviceExtension,
 	IN PSCSI_REQUEST_BLOCK Srb
 );
+
+UCHAR OnScsiReadWrite(
+	IN PHW_DEVICE_EXTENSION DeviceExtension,
+	IN PCDB Cdb,
+	IN PSCSI_REQUEST_BLOCK Srb,
+	IN PVOID SystemBuffer
+);
+
 #pragma endregion
 
