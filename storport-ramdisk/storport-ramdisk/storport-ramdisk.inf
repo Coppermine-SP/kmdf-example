@@ -1,62 +1,62 @@
-;
 ; storport-ramdisk.inf
-;
+; Storport Virtual Miniport (RAM Disk) - INF (miniport-only)
+; Copyright (C) 2025-2026 Coppermine-SP
 
 [Version]
-Signature   = "$WINDOWS NT$"
-Class       = SCSIAdapter 
-ClassGuid   = {4d36e97b-e325-11ce-bfc1-08002be10318} ;
-Provider    = %ManufacturerName%
+Signature   = "$Windows NT$"
+Class       = SCSIAdapter
+ClassGuid   = {4D36E97B-E325-11CE-BFC1-08002BE10318}
+Provider    = %MfgName%
+DriverVer   = 
 CatalogFile = storport-ramdisk.cat
-DriverVer   =
 PnpLockdown = 1
 
-[DestinationDirs]
-DefaultDestDir = 13
-
-[SourceDisksNames]
-1 = %DiskName%,,,""
-
-[SourceDisksFiles]
-storport-ramdisk.sys = 1,,
-
-;*****************************************
-; Install Section
-;*****************************************
-
 [Manufacturer]
-%ManufacturerName% = Standard,NT$ARCH$.10.0...16299 ; %13% support introduced in build 16299
+%MfgName% = Models,NTamd64
 
-[Standard.NT$ARCH$.10.0...16299]
-%storport-ramdisk.DeviceDesc% = storport-ramdisk_Device, Root\storport-ramdisk
+[Models.NTamd64]
+; Root-enumerated virtual adapter. Change the HW ID if needed.
+%DeviceDesc% = Miniport_Install, ROOT\CINT_RamDisk
 
-[storport-ramdisk_Device.NT]
-CopyFiles = File_Copy
+; -------------------- Install Sections --------------------
 
-[File_Copy]
+[Miniport_Install]
+CopyFiles  = DriverCopyFiles
+
+[Miniport_Install.Services]
+; 0x00000002 (SPSVCINST_ASSOCSERVICE): associate service with the device
+AddService = %ServiceName%, 0x00000002, Service_Inst
+
+; -------------------- Service & EventLog --------------------
+
+[Service_Inst]
+DisplayName     = %ServiceDisplayName%
+ServiceType     = 1                 ; SERVICE_KERNEL_DRIVER
+StartType       = 3                 ; SERVICE_DEMAND_START (on-demand). Use 0 for BOOT_START disks.
+ErrorControl    = 1                 ; SERVICE_ERROR_NORMAL
+ServiceBinary   = %12%\storport-ramdisk.sys
+LoadOrderGroup  = SCSI Miniport     ; Required for storport/scsi miniports
+
+; -------------------- Copy & Source --------------------
+
+[DestinationDirs]
+DefaultDestDir   = 12               ; %SystemRoot%\System32\drivers
+DriverCopyFiles  = 12
+
+[DriverCopyFiles]
 storport-ramdisk.sys
 
-;-------------- Service installation
-[storport-ramdisk_Device.NT.Services]
-AddService = storport-ramdisk,%SPSVCINST_ASSOCSERVICE%, storport-ramdisk_Service_Inst
+[SourceDisksNames]
+1 = %DiskName%,,,
 
-; -------------- storport-ramdisk driver install sections
-[storport-ramdisk_Service_Inst]
-DisplayName    = %storport-ramdisk.SVCDESC%
-ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
-StartType      = 3               ; SERVICE_DEMAND_START
-ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %13%\storport-ramdisk.sys
+[SourceDisksFiles]
+storport-ramdisk.sys = 1
 
-[storport-ramdisk_Device.NT.Wdf]
-KmdfService = storport-ramdisk, storport-ramdisk_wdfsect
-
-[storport-ramdisk_wdfsect]
-KmdfLibraryVersion = $KMDFVERSION$
+; -------------------- Strings --------------------
 
 [Strings]
-SPSVCINST_ASSOCSERVICE = 0x00000002
-ManufacturerName = "CloudInteractive Inc." ;TODO: Replace with your manufacturer name
-DiskName = "storport-ramdisk Installation Disk"
-storport-ramdisk.DeviceDesc = "CloudInteractive Virtual Storage Controller"
-storport-ramdisk.SVCDESC = "storport-ramdisk Service"
+MfgName            = "CloudInteractive Inc."
+DeviceDesc         = "CloudInteractive Virtual Storage Controller"
+ServiceName        = "storport-ramdisk"
+ServiceDisplayName = "CloudInteractive Virtual Storage Miniport"
+DiskName           = "CloudInteractive Virtual Storage Controller Install Disk"
