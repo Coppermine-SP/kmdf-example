@@ -31,6 +31,7 @@ BOOLEAN OnHwPassiveInitialize(
 		return FALSE;
 	}
 
+	RtlZeroMemory(pBuffer, DISK_SIZE_BYTES);
 	pHwDeviceExtension->Base = (PUCHAR)pBuffer;
 	pHwDeviceExtension->TotalBlocks = DISK_TOTAL_BLOCKS;
 
