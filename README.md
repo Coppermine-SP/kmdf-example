@@ -11,6 +11,8 @@
   DeviceIoControl()을 통해 문자열을 전달받는 가상 KMDF 디바이스 드라이버
 - **storport-ramdisk**:
   Storport Virtual Miniport Driver (VMiniport)로 구현된 램 디스크 드라이버
+- **remote-keyboard**:
+  원격으로 키보드 입력을 받는 VHF (Virtual HID Framework) 드라이버
   
 ## Prerequisites
 - Windows 11 24H2
@@ -134,3 +136,10 @@ Disk Manager에서 가상 디스크 장치를 초기화하고 파티션을 구�
 <p align="center">
   <img width="500" alt="Screenshot 2025-09-12 204413" src="https://github.com/user-attachments/assets/fe4d2ce9-e6fc-4f35-8a46-945ef3232de4" />
 </p>
+
+- - -
+
+### remote-keyboard
+
+원격으로 키보드 입력을 받는 VHF (Virtual HID Framework) 드라이버
+
