@@ -143,3 +143,25 @@ Disk Manager에서 가상 디스크 장치를 초기화하고 파티션을 구�
 
 원격으로 키보드 입력을 받는 VHF (Virtual HID Framework) 드라이버
 
+- WSK (Winsock Kernel)을 통한 UDP Listening
+- VHF (Virtual HID Framework)를 통한 가상 HID 장치 에뮬레이션
+- HID Device Boot Protocol 처리 (6키 롤오버)
+- Win32 Hook을 이용한 KeyboardProc 후킹 (C# 기반 전송 클라이언트)
+
+대상 장치에 솔루션의 remote-keyboard-driver 드라이버를 설치하고 장치를 추가합니다.
+
+<p align="center">
+  <img width="500" alt="Screenshot 2025-09-21 214843" src="https://github.com/user-attachments/assets/1b36ab8c-ed7e-43b1-aa42-859a35320c63" />
+</p>
+
+솔루션의 kmdf-echo-app을 빌드하여 실행하고 드라이버와 연결합니다. (대상 장치의 포트는 UDP/2381 입니다.)
+
+<p align="center">
+  <img width="500" alt="Screenshot 2025-09-21 212152" src="https://github.com/user-attachments/assets/3583221b-27e6-47ef-89f8-247723cc8e90" />
+</p>
+
+이제 클라이언트의 키 입력이 대상 장치에서 에뮬레이션 됩니다. 디버그 매크로 상수를 설정하고 WinDbg 명령 창을 참조합니다.
+
+<p align="center">
+  <img width="500" alt="Screenshot 2025-09-21 215535" src="https://github.com/user-attachments/assets/d4cd6262-e37f-48a8-a2a4-3c29cd2431a8" />
+</p>
