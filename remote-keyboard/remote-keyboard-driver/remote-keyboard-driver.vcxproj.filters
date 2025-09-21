@@ -27,9 +27,33 @@
     <ClCompile Include="DriverEntry.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dbglog.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OnDeviceAdd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateVirtualKeyboardDevice.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OnDriverCleanup.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateUdpListener.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OnDgramReceive.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OnSocketIoComplete.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="remote-keyboard-driver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dbglog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

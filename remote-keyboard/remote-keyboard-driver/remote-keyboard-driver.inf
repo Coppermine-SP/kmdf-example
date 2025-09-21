@@ -3,60 +3,82 @@
 ;
 
 [Version]
-Signature   = "$WINDOWS NT$"
-Class       = System ; TODO: specify appropriate Class
-ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318} ; TODO: specify appropriate ClassGuid
-Provider    = %ManufacturerName%
-CatalogFile = remote-keyboard-driver.cat
-DriverVer   = ; TODO: set DriverVer in stampinf property pages
-PnpLockdown = 1
-
-[DestinationDirs]
-DefaultDestDir = 13
-
-[SourceDisksNames]
-1 = %DiskName%,,,""
-
-[SourceDisksFiles]
-remote-keyboard-driver.sys = 1,,
-
-;*****************************************
-; Install Section
-;*****************************************
+Signature="$WINDOWS NT$"
+Class=CLOUDINT
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be11318}
+Provider=%Mfg%
+DriverVer=
+CatalogFile=remote-keyboard-driver.cat
+PnpLockdown=1
 
 [Manufacturer]
-%ManufacturerName% = Standard,NT$ARCH$.10.0...16299 ; %13% support introduced in build 16299
+%Mfg%=Models,NTamd64.10.0
+%Mfg%=Models,NTamd64
+%Mfg%=Models
 
-[Standard.NT$ARCH$.10.0...16299]
-%remote-keyboard-driver.DeviceDesc% = remote-keyboard-driver_Device, Root\remote-keyboard-driver ; TODO: edit hw-id
+[ClassInstall32]
+AddReg=CLOUDINTClassReg
 
-[remote-keyboard-driver_Device.NT]
-CopyFiles = File_Copy
+[ClOUDINTClassReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-5
+HKR,,DeviceCharacteristics,0x10001,0x100                 ;Use same security checks on relative opens
+HKR,,Security,,"D:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;LS)" ;Allow generic all access to system, built-in Admin, and Local System.
+                                                         ;This one overrides the security set by the driver
 
-[File_Copy]
+; ── 여러 플랫폼 섹션을 모두 제공 ──
+[Models]
+%DeviceDesc% = Install, ROOT\CINT_VIRTUAL_KEYBOARD
+
+[Models.NTamd64]
+%DeviceDesc% = Install, ROOT\CINT_VIRTUAL_KEYBOARD
+
+[Models.NTamd64.10.0]
+%DeviceDesc% = Install, ROOT\CINT_VIRTUAL_KEYBOARD
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+[SourceDisksNames]
+1 = %DiskName%,,,
+
+[SourceDisksFiles]
+remote-keyboard-driver.sys = 1
+
+[Install]
+
+[Install.NT]
+CopyFiles = DriverCopyFiles
+
+[DriverCopyFiles]
 remote-keyboard-driver.sys
 
-;-------------- Service installation
-[remote-keyboard-driver_Device.NT.Services]
-AddService = remote-keyboard-driver,%SPSVCINST_ASSOCSERVICE%, remote-keyboard-driver_Service_Inst
+[Install.NT.Services]
+AddService = remote-keyboard-driver, 0x00000002, Service_Inst
 
-; -------------- remote-keyboard-driver driver install sections
-[remote-keyboard-driver_Service_Inst]
-DisplayName    = %remote-keyboard-driver.SVCDESC%
-ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
-StartType      = 3               ; SERVICE_DEMAND_START
-ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %13%\remote-keyboard-driver.sys
+[Service_Inst]
+DisplayName   = %SvcDesc%
+ServiceType   = 1
+StartType     = 3
+ErrorControl  = 1
+ServiceBinary = %12%\remote-keyboard-driver.sys
 
-[remote-keyboard-driver_Device.NT.Wdf]
-KmdfService = remote-keyboard-driver, remote-keyboard-driver_wdfsect
+[Install.NT.Wdf]
+KmdfService = remote-keyboard-driver, remote_keyboard_driver_Inst
 
-[remote-keyboard-driver_wdfsect]
+[remote_keyboard_driver_Inst]
 KmdfLibraryVersion = $KMDFVERSION$
 
+
+[Install.NT.HW]
+AddReg = LowerFilterVhf
+
+[LowerFilterVhf]
+HKR,,"LowerFilters",0x00010000,"vhf"
+
 [Strings]
-SPSVCINST_ASSOCSERVICE = 0x00000002
-ManufacturerName = "<Your manufacturer name>" ;TODO: Replace with your manufacturer name
-DiskName = "remote-keyboard-driver Installation Disk"
-remote-keyboard-driver.DeviceDesc = "remote-keyboard-driver Device"
-remote-keyboard-driver.SVCDESC = "remote-keyboard-driver Service"
+Mfg="CloudInteractive Inc."
+ClassName="CloudInteractive"
+DeviceDesc="CloudInteractive Remote Keyboard Device"
+SvcDesc="CloudInteractive Remote Keyboard KMDF Driver"
+DiskName="Remote Keyboard Driver Package"

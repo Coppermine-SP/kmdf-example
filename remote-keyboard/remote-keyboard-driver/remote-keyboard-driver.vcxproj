@@ -35,6 +35,7 @@
     <ConfigurationType>Driver</ConfigurationType>
     <DriverType>KMDF</DriverType>
     <DriverTargetPlatform>Universal</DriverTargetPlatform>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
@@ -70,6 +71,7 @@
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <Inf2CatUseLocalTime>true</Inf2CatUseLocalTime>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
@@ -84,6 +86,9 @@
     <DriverSign>
       <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
     </DriverSign>
+    <Link>
+      <AdditionalDependencies>$(DDK_LIB_PATH)Netio.lib;$(DDK_LIB_PATH)Vhfkm.lib;$(SDK_LIB_PATH)uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DriverSign>
@@ -107,9 +112,17 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CreateUdpListener.c" />
+    <ClCompile Include="CreateVirtualKeyboardDevice.c" />
+    <ClCompile Include="dbglog.c" />
     <ClCompile Include="DriverEntry.c" />
+    <ClCompile Include="OnSocketIoComplete.c" />
+    <ClCompile Include="OnDeviceAdd.c" />
+    <ClCompile Include="OnDgramReceive.c" />
+    <ClCompile Include="OnDriverCleanup.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dbglog.h" />
     <ClInclude Include="remote-keyboard-driver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
