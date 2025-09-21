@@ -48,6 +48,9 @@
     <ClCompile Include="OnSocketIoComplete.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SubmitKeyboardReport.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="remote-keyboard-driver.h">

@@ -120,6 +120,7 @@
     <ClCompile Include="OnDeviceAdd.c" />
     <ClCompile Include="OnDgramReceive.c" />
     <ClCompile Include="OnDriverCleanup.c" />
+    <ClCompile Include="SubmitKeyboardReport.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dbglog.h" />

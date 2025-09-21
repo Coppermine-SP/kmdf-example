@@ -1,5 +1,5 @@
 /*
-*	remote-keyboard-drvier - remote-keyboard-driver.h
+*	remote-keyboard-driver - remote-keyboard-driver.h
 *	원격 가상 키보드 장치를 구현하는 예제입니다.
 * 
 *	Copyright (C) 2025-2026 Coppermine-SP 
@@ -54,6 +54,11 @@ NTSTATUS WSKAPI OnDgramReceive(
     IN PVOID SocketContext,
     IN ULONG Flags,
     IN PWSK_DATAGRAM_INDICATION Indication
+);
+
+VOID SubmitKeyboardReport(
+    IN PDEVICE_CONTEXT DeviceContext,
+    IN PUCHAR Report
 );
 #pragma endregion
 

@@ -1,22 +1,33 @@
 /*
-*	remote-keyboard-drvier - OnDgramReceive.c
+*	remote-keyboard-driver - OnDgramReceive.c
 *	원격 가상 키보드 장치를 구현하는 예제입니다.
 *
 *	Copyright (C) 2025-2026 Coppermine-SP
 */
 
 #include "remote-keyboard-driver.h"
-#include "dbglog.h"
 
 NTSTATUS WSKAPI OnDgramReceive(
     IN PVOID SocketContext,
     IN ULONG Flags,
     IN PWSK_DATAGRAM_INDICATION Indication
 ) {
-    UNREFERENCED_PARAMETER(SocketContext);
     UNREFERENCED_PARAMETER(Flags);
-    UNREFERENCED_PARAMETER(Indication);
 
-	DBGPRINT_INFO("OnDgramReceive called");
-	return STATUS_SUCCESS;
+	PDEVICE_CONTEXT ctx = (PDEVICE_CONTEXT)SocketContext;
+
+    while (Indication) {
+        const WSK_BUF* buf = &Indication->Buffer;
+        if (buf->Mdl && buf->Length >= 8) {
+			PUCHAR base = (PUCHAR)MmGetSystemAddressForMdlSafe(buf->Mdl, NormalPagePriority);
+            if (base) {
+                UCHAR report[8] = { 0, };
+                RtlCopyMemory(report, base + buf->Offset, 8);
+				SubmitKeyboardReport(ctx, report);
+            }
+        }
+		Indication = Indication->Next;
+    }
+
+    return STATUS_SUCCESS;
 }
